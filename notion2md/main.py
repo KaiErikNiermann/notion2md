@@ -144,6 +144,7 @@ class NotionMdParser:
 
                 if action and target:
                     tag = locals()[target]
+                    print(tag)
                     action(tag)
                     if not self.is_navstring(tag):
                         tag.append(text)

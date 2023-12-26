@@ -1,8 +1,8 @@
 <img src="assets/icon.png" alt="isolated" width="400"/>
 
-# Correct Notion to md/html Converter
+# Correct Notion to md/html converter
 
-This project is a tool for converting Notion pages to Markdown files. Since Notion for some reason adds an excessive number of `strong` and `em` tags this tool just removes them and then converts the html doc to markdown and preserves the fixed html copy.
+This project is a tool for converting Notion pages to Markdown files. Since Notion for some reason adds an excessive number of `strong` and `em` tags this tool just removes them, and gives you either the corrected html files or the cleaned up markdown, see `--help` for details.
 
 ## Project Structure
 
@@ -25,5 +25,11 @@ poetry install
 2. Run the following command
 
 ```sh
-poetry run python notion2md/main.py
+poetry run python notion2md/main.py 
 ```
+
+| command | description                                                                      | default |
+|---------|----------------------------------------------------------------------------------|---------|
+| -ca     | Remove the files you put in the conversion folder after everything is cleaned up | false   |
+| -to     | Choose to either just get the corrected html files or get the markdown files     | md      |
+
