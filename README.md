@@ -6,7 +6,7 @@ This project is a tool for converting Notion pages to Markdown files. A better p
 
 My approach differs in that I just parse the html notion emits and apply some fixes then have pandoc do the actual conversion to markdown.
 
-**Note** : This still has some bugs but should work for most basic markdown stuff, more complex things don't work yet.
+**Note** : This still has some bugs but should work for most basic markdown stuff, but expect certain stuff to be buggy.
 
 Since Notion for some reason adds an excessive number of `strong` and `em` tags this tool just removes them, and gives you either the corrected html files or the cleaned up markdown, see `--help` for details.
 
