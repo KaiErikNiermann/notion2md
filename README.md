@@ -2,7 +2,9 @@
 
 # Notion to md/html converter
 
-This project is a tool for converting Notion pages to Markdown files. A better project than this already exists [here](https://github.com/souvikinator/notion-to-md) so if you want the highest quality conversion use that. This is really meant more if you just need to quickly convert something.
+This project is a tool for converting Notion pages to Markdown files. A better project than this already exists [here](https://github.com/souvikinator/notion-to-md) so if you want the highest quality conversion use that. This is really meant more if you just need to quickly basic notion markdown.
+
+**Note** : This still has some bugs but should work for most basic markdown stuff
 
 Since Notion for some reason adds an excessive number of `strong` and `em` tags this tool just removes them, and gives you either the corrected html files or the cleaned up markdown, see `--help` for details.
 
