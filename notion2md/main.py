@@ -150,7 +150,10 @@ class NotionMdParser:
                     action(tag)
                     if not self.is_navstring(tag):
                         tag.append(text)
-
+                        
+        for kmath in soup.find_all('span', {'class': 'katex-html'}):
+            kmath.decompose()
+    
         return soup
 
     def dump_md(self, html_fp):
@@ -163,9 +166,22 @@ class NotionMdParser:
             extra_args=[
                 "-t",
                 "gfm-raw_html",
+                "--ascii",
             ],
         )
+        
         if self.target == "md":
+            with open(out_file_name, "r") as f:
+                md = f.read()
+                md = md.replace("&#65279;", "")
+                md = md.replace("&ZeroWidthSpace;", "")
+                md = md.replace("\(", "$")
+                md = md.replace("\)", "$")
+                md = md.replace("\[", "$$")
+                md = md.replace("\]", "$$")
+                with open(out_file_name, "w") as f:
+                    f.write(md)
+
             os.remove(html_fp)
         else:
             os.remove(out_file_name)
