@@ -80,6 +80,14 @@ class NotionMdParser:
             self.tags_to_delete = []
             self.dump_md(mod_html)
 
+    def fix_links(self, soup):
+        # find all hrefs ending with '.html'
+        for a in soup.find_all("a", href=True):
+            if a["href"].endswith(".html"):
+                a["href"] = a["href"].replace('.html', '.md').replace('%20', ' ')
+                
+        return soup
+
     def write_modified_soup(self, soup, html_fp):
         self.create_folder(self.out_md_folder_fp)
         mod_html_fp = html_fp.replace(self.input_folder_fp, self.out_md_folder_fp)
@@ -96,6 +104,7 @@ class NotionMdParser:
 
     def parse(self, html_fp):
         soup = BeautifulSoup(open(html_fp), "html.parser")
+        soup = self.fix_links(soup)
         for tag in soup.find_all(["strong", "em"]):
             if tag.parent.name not in ["strong", "em"]:
                 text = tag.text
@@ -112,9 +121,10 @@ class NotionMdParser:
                 )
 
                 if action and target:
-                    action(locals()[target])
-                    if not self.is_navstring(locals()[target]):
-                        locals()[target].append(text)
+                    tag = locals()[target]
+                    action(tag)
+                    if not self.is_navstring(tag):
+                        tag.append(text)
         return soup
 
     def dump_md(self, html_fp):
