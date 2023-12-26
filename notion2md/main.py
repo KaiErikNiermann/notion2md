@@ -156,7 +156,7 @@ class NotionMdParser:
         self.create_folder(self.out_folder_fp)
         out_file_name = html_fp.replace(".html", ".md")
         pypandoc.convert_file(
-            html_fp, "md", outputfile=out_file_name, extra_args=["-s", "-o", "gfm-raw_html", "--strip-comments", "--no-highlight", "--mathjax"]
+            html_fp, "md", outputfile=out_file_name, extra_args=["-s", "--webtex=https://cdn.jsdelivr.net/npm/katex@0.13.11/dist", "-t", "gfm-raw_html", "--strip-comments", "--no-highlight", "--mathjax"]
         )
         if self.target == "md":
             os.remove(html_fp)
