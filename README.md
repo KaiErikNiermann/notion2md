@@ -4,11 +4,9 @@
 
 This project is a tool for converting Notion pages to Markdown files. A better project than this already exists [here](https://github.com/souvikinator/notion-to-md) and probably in other places so if you want the highest quality conversion thats probably better.
 
-My approach differs in that I just parse the html notion emits and apply some fixes then have pandoc do the actual conversion to markdown.
-
 **Note** : This still has some bugs but should work for most basic markdown stuff, but expect certain stuff to be buggy.
 
-Since Notion for some reason emites some slightly messed up html/md this tool just fixes the outputs, and gives you either the corrected html files or the cleaned up markdown, see `--help` for details.
+Since Notion for some reason emits some slightly messed up html/md this tool just fixes the outputs, and gives you either the corrected html files or the cleaned up markdown, see `--help` for details.
 
 ## Project Structure
 
@@ -41,3 +39,6 @@ poetry run python notion2md/main.py --help
 | `-ca`       | Remove the files you put in the conversion folder after everything is cleaned up | {true, false} | false       |
 | `-to`       | Choose to either just get the corrected html files or get the markdown files     | {md, html}    | md          |
 
+## What is different here ? 
+
+This approach doesn't make use of the Notion API directly, I just parse the html notion emits, fix any oddities and then let pandoc to the actual conversion. Probably not the best approach but it minimizes unecessary code by just fixing what actually needs to be fixed.

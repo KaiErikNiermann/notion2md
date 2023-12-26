@@ -179,6 +179,7 @@ class NotionMdParser:
                 md = md.replace("\)", "$")
                 md = md.replace("\[", "$$")
                 md = md.replace("\]", "$$")
+                md = md.replace("&rsquo;", "'")
                 with open(out_file_name, "w") as f:
                     f.write(md)
 
