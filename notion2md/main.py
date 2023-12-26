@@ -103,9 +103,10 @@ class NotionMdParser:
 
     def fix_links(self, soup):
         # find all hrefs ending with '.html'
-        for a in soup.find_all("a", href=True):
-            if a["href"].endswith(".html"):
-                a["href"] = a["href"].replace(".html", ".md").replace("%20", " ")
+        if self.target == 'html':
+            for a in soup.find_all("a", href=True):
+                if a["href"].endswith(".html"):
+                    a["href"] = a["href"].replace(".html", ".md").replace("%20", " ")
 
         return soup
 
@@ -176,7 +177,6 @@ if __name__ == "__main__":
         description="Program to clean up the bad conversion of notion to html and md",
         epilog="Contact me on discord @appulsauce for any issues or problems or raise a gh issue",
     )
-
     parser.add_argument(
         "-ca",
         "--clean-after",
