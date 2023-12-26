@@ -25,11 +25,13 @@ poetry install
 2. Run the following command
 
 ```sh
-poetry run python notion2md/main.py 
+poetry run python notion2md/main.py --help
 ```
 
-| command | description                                                                      | default |
-|---------|----------------------------------------------------------------------------------|---------|
-| -ca     | Remove the files you put in the conversion folder after everything is cleaned up | false   |
-| -to     | Choose to either just get the corrected html files or get the markdown files     | md      |
+
+### commands summary
+| **command** | **description**                                                                  | **options**   | **default** |
+|-------------|----------------------------------------------------------------------------------|---------------|-------------|
+| `-ca`       | Remove the files you put in the conversion folder after everything is cleaned up | {true, false} | false       |
+| `-to`       | Choose to either just get the corrected html files or get the markdown files     | {md, html}    | md          |
 
