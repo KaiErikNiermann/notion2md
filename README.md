@@ -2,7 +2,9 @@
 
 # Notion to md/html converter
 
-This project is a tool for converting Notion pages to Markdown files. A better project than this already exists [here](https://github.com/souvikinator/notion-to-md) so if you want the highest quality conversion use that. This is really meant more if you want to quickly convert basic notion markdown pages.
+This project is a tool for converting Notion pages to Markdown files. A better project than this already exists [here](https://github.com/souvikinator/notion-to-md) so if you want the highest quality conversion thats probably better.
+
+My approach differs in that I just parse the html notion emits and apply some fixes then have pandoc do the actual conversion to markdown.
 
 **Note** : This still has some bugs but should work for most basic markdown stuff, more complex things don't work yet.
 
