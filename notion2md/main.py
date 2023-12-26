@@ -3,10 +3,12 @@ from bs4 import BeautifulSoup
 import pypandoc
 import os
 import zipfile
+import argparse
+import shutil
 
 
 class NotionMdParser:
-    def __init__(self):
+    def __init__(self, clean_after, target):
         self.actions = {
             "strong": {
                 "em": (self.clear_children, "first_child"),
@@ -17,11 +19,13 @@ class NotionMdParser:
                 "em": (self.clear_children, "tag"),
             },
         }
+        self.clean_after = clean_after
+        self.target = target
         self.html_files = []
-        self.input_folder_fp = "notion_html"
-        self.out_md_folder_fp = "output_md"
-        self.out_html_folder_fp = "output_html"
         self.tags_to_delete = []
+        self.misc_files_to_move = []
+        self.input_folder_fp = "notion_html"
+        self.out_folder_fp = "output"
 
     def create_folder(self, folder_fp):
         if not os.path.isdir(folder_fp):
@@ -44,35 +48,52 @@ class NotionMdParser:
 
         os.remove(os.path.join(folder_fp, zip_fp))
 
-    def gather_files(self, folder_fp):
-        files = os.listdir(folder_fp)
-        # filter out files ending in html
-        filtered_html_files = list(
+    def get_files(self, cond, folder_fp, files):
+        return list(
             map(
                 lambda file: os.path.join(folder_fp, file),
-                list(filter(lambda x: x.endswith(".html"), files)),
+                list(filter(cond, files)),
             )
         )
-        self.html_files.extend(filtered_html_files)
+
+    def gather_files(self, folder_fp):
+        files = os.listdir(folder_fp)
+        self.html_files.extend(
+            self.get_files(lambda x: x.endswith(".html"), folder_fp, files)
+        )
+        self.misc_files_to_move.extend(
+            self.get_files(
+                lambda x: (x.split(".")[-1] not in ["md", "html", "zip"]),
+                folder_fp,
+                files,
+            )
+        )
 
         for file in files:
+            file_p = os.path.join(folder_fp, file)
             if file.endswith(".zip"):
                 self.unzip(file, folder_fp)
-            elif os.path.isdir(os.path.join(folder_fp, file)) and not file.endswith(
-                ".zip"
-            ):
-                # create folder in output folder
-                folder_fp = os.path.join(folder_fp, file)
+                self.gather_files(folder_fp)
+            elif os.path.isdir(file_p) and not file.endswith(".zip"):
+                folder_fp = file_p
                 self.create_folder(
                     os.path.join(
-                        self.out_md_folder_fp, "/".join((folder_fp.split("/"))[1:])
+                        self.out_folder_fp, "/".join((folder_fp.split("/"))[1:])
                     )
                 )
                 self.gather_files(folder_fp)
 
+    def move_misc_files(self):
+        for f in self.misc_files_to_move:
+            if not os.path.isdir(f):
+                source_p = f
+                target_p = f.replace(self.input_folder_fp, self.out_folder_fp)
+                shutil.move(source_p, target_p)
+
     def run(self):
-        self.create_folder(self.input_folder_fp)
+        self.create_folder(self.out_folder_fp)
         self.gather_files(self.input_folder_fp)
+        self.move_misc_files()
         for html_fp in self.html_files:
             soup = self.parse(html_fp)
             self.cleanup_tags()
@@ -84,13 +105,13 @@ class NotionMdParser:
         # find all hrefs ending with '.html'
         for a in soup.find_all("a", href=True):
             if a["href"].endswith(".html"):
-                a["href"] = a["href"].replace('.html', '.md').replace('%20', ' ')
-                
+                a["href"] = a["href"].replace(".html", ".md").replace("%20", " ")
+
         return soup
 
     def write_modified_soup(self, soup, html_fp):
-        self.create_folder(self.out_md_folder_fp)
-        mod_html_fp = html_fp.replace(self.input_folder_fp, self.out_md_folder_fp)
+        self.create_folder(self.out_folder_fp)
+        mod_html_fp = html_fp.replace(self.input_folder_fp, self.out_folder_fp)
         with open(mod_html_fp, "w") as f:
             f.write(str(soup))
         return mod_html_fp
@@ -128,28 +149,52 @@ class NotionMdParser:
         return soup
 
     def dump_md(self, html_fp):
-        self.create_folder(self.out_md_folder_fp)
+        self.create_folder(self.out_folder_fp)
         out_file_name = html_fp.replace(".html", ".md")
         pypandoc.convert_file(
             html_fp, "md", outputfile=out_file_name, extra_args=["-t", "gfm-raw_html"]
         )
-        self.create_folder(self.out_html_folder_fp)
-        html_fp.replace(self.input_folder_fp, self.out_html_folder_fp)
-        os.remove(html_fp)
+        if self.target == "md":
+            os.remove(html_fp)
+        else:
+            os.remove(out_file_name)
 
-    def clean_helper(self, folder_fp, end):
+    def clean_helper(self, folder_fp):
         if not os.path.isdir(folder_fp):
             return
         for file in os.listdir(folder_fp):
-            if file.endswith(end):
-                os.remove(os.path.join(folder_fp, file))
+            os.remove(os.path.join(folder_fp, file))
 
     def clean(self):
-        self.clean_helper(self.input_folder_fp, ".html")
-        self.clean_helper(self.out_md_folder_fp, ".md")
-        self.clean_helper(self.out_html_folder_fp, ".html")
+        if self.clean_after == "true":
+            self.clean_helper(self.input_folder_fp)
 
 
 if __name__ == "__main__":
-    notion_parser = NotionMdParser()
+    parser = argparse.ArgumentParser(
+        prog="NotionConverter",
+        description="Program to clean up the bad conversion of notion to html and md",
+        epilog="Contact me on discord @appulsauce for any issues or problems or raise a gh issue",
+    )
+
+    parser.add_argument(
+        "-ca",
+        "--clean-after",
+        choices=[
+            "true",
+            "false",
+        ],
+        help="Remove the files from notion after fixing the conversion",
+        default="false",
+    )
+    parser.add_argument(
+        "-to",
+        "--target",
+        choices=["md", "html", "both"],
+        help="Fix the conversion either to html or markdown or both",
+        default="both",
+    )
+
+    args = parser.parse_args()
+    notion_parser = NotionMdParser(args.clean_after, args.target)
     notion_parser.run()
