@@ -106,7 +106,7 @@ class NotionMdParser:
 
     def fix_links(self, soup):
         # find all hrefs ending with '.html'
-        if self.target == "html":
+        if self.target == "md":
             for a in soup.find_all("a", href=True):
                 if a["href"].endswith(".html"):
                     a["href"] = a["href"].replace(".html", ".md")
