@@ -79,7 +79,7 @@ class NotionMdParser:
                 self.gather_files(folder_fp)
             elif os.path.isdir(file_p) and not file.endswith(".zip"):
                 folder_fp = file_p
-                self.create_folder( 
+                self.create_folder(
                     os.path.join(
                         self.out_folder_fp, "/".join((folder_fp.split("/"))[1:])
                     )
@@ -106,10 +106,10 @@ class NotionMdParser:
 
     def fix_links(self, soup):
         # find all hrefs ending with '.html'
-        if self.target == 'html':
+        if self.target == "html":
             for a in soup.find_all("a", href=True):
                 if a["href"].endswith(".html"):
-                    a["href"] = a["href"].replace(".html", ".md").replace("%20", " ")
+                    a["href"] = a["href"].replace(".html", ".md")
 
         return soup
 
@@ -150,13 +150,20 @@ class NotionMdParser:
                     action(tag)
                     if not self.is_navstring(tag):
                         tag.append(text)
+
         return soup
 
     def dump_md(self, html_fp):
         self.create_folder(self.out_folder_fp)
         out_file_name = html_fp.replace(".html", ".md")
         pypandoc.convert_file(
-            html_fp, "md", outputfile=out_file_name, extra_args=["-s", "--webtex=https://cdn.jsdelivr.net/npm/katex@0.13.11/dist", "-t", "gfm-raw_html", "--strip-comments", "--no-highlight", "--mathjax"]
+            html_fp,
+            "md",
+            outputfile=out_file_name,
+            extra_args=[
+                "-t",
+                "gfm-raw_html",
+            ],
         )
         if self.target == "md":
             os.remove(html_fp)
