@@ -6,9 +6,9 @@ This project is a tool for converting Notion pages to Markdown files. Since Noti
 
 ## Project Structure
 
+- `notion_html/`: Directory for the Notion HTML files to be fixed.
 - `output_md/`: Directory for fixed markdown files.
 - `output_html/`: Directory for fixed html files.
-- `notion_html/`: Directory for the Notion HTML files to be fixed.
 
 ## Setup
 
