@@ -8,3 +8,4 @@ __pycache__/
 *.lock
 output_md 
 output_html
+notion_html
