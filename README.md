@@ -1,4 +1,4 @@
-<img src="assets/icon.png" alt="isolated" width="900" style="max-width: 100%"/>
+<img src="assets/icon.png" alt="isolated" width="400" style="max-width: 100%"/>
 
 # Notion to md/html converter
 
