@@ -57,6 +57,9 @@ class NotionMdParser:
         )
 
     def gather_files(self, folder_fp):
+        """
+        Function gatheres all the files to convert and preserves the project structure in the output directory
+        """
         files = os.listdir(folder_fp)
         self.html_files.extend(
             self.get_files(lambda x: x.endswith(".html"), folder_fp, files)
@@ -76,7 +79,7 @@ class NotionMdParser:
                 self.gather_files(folder_fp)
             elif os.path.isdir(file_p) and not file.endswith(".zip"):
                 folder_fp = file_p
-                self.create_folder(
+                self.create_folder( 
                     os.path.join(
                         self.out_folder_fp, "/".join((folder_fp.split("/"))[1:])
                     )
@@ -144,7 +147,6 @@ class NotionMdParser:
 
                 if action and target:
                     tag = locals()[target]
-                    print(tag)
                     action(tag)
                     if not self.is_navstring(tag):
                         tag.append(text)
@@ -154,7 +156,7 @@ class NotionMdParser:
         self.create_folder(self.out_folder_fp)
         out_file_name = html_fp.replace(".html", ".md")
         pypandoc.convert_file(
-            html_fp, "md", outputfile=out_file_name, extra_args=["-t", "gfm-raw_html"]
+            html_fp, "md", outputfile=out_file_name, extra_args=["-t", "gfm-raw_html", "--strip-comments", "--no-highlight"]
         )
         if self.target == "md":
             os.remove(html_fp)
