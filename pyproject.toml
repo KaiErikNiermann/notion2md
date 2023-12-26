@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "notion2md"
+version = "0.1.0"
+description = ""
+authors = ["KaiErikNiermann <kai.niermann@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+bs4 = "^0.0.1"
+pypandoc = "^1.12"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
