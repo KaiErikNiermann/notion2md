@@ -1,4 +1,4 @@
-[icon](assets/icon.png)
+<img src="assets/icon.png" alt="isolated" width="400"/>
 
 # Notion to Markdown Converter
 
