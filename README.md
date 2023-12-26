@@ -1,3 +1,5 @@
+[icon](assets/icon.png)
+
 # Notion to Markdown Converter
 
 This project is a tool for converting Notion pages to Markdown files. Since Notion for some reason adds an excessive number of `strong` and `em` tags this tool just removes them and then converts the html doc to markdown and preserves the fixed html copy.
