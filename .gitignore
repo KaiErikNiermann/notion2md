@@ -6,6 +6,6 @@ __pycache__/
 *.json
 *.html
 *.lock
-output_md/*
+output/*
 output_html/*
 notion_html/*
