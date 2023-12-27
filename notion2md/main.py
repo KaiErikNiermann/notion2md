@@ -5,7 +5,7 @@ import os
 import zipfile
 import argparse
 import shutil
-
+import html
 
 class NotionMdParser:
     def __init__(self, clean_after, target):
@@ -128,7 +128,7 @@ class NotionMdParser:
         return type(list(tag.children)[0]) == bs4.element.NavigableString
 
     def parse(self, html_fp):
-        soup = BeautifulSoup(open(html_fp), "html.parser")
+        soup = BeautifulSoup(open(html_fp), "html.parser", from_encoding="utf-8-sig")
         soup = self.fix_links(soup)
         for tag in soup.find_all(["strong", "em"]):
             if tag.parent.name not in ["strong", "em"]:
@@ -159,27 +159,34 @@ class NotionMdParser:
     def dump_md(self, html_fp):
         self.create_folder(self.out_folder_fp)
         out_file_name = html_fp.replace(".html", ".md")
+        pandoc_opts = [
+            "raw_html",
+            "tex_math_dollars",
+            "raw_tex",
+            "multiline_tables",
+            "pipe_tables",
+            "latex_macros",
+            
+        ]
         pypandoc.convert_file(
             html_fp,
             "md",
             outputfile=out_file_name,
             extra_args=[
                 "-t",
-                "gfm-raw_html",
-                "--ascii",
+                f"markdown_strict-{'+'.join(pandoc_opts)}",
             ],
         )
         
         if self.target == "md":
             with open(out_file_name, "r") as f:
                 md = f.read()
-                md = md.replace("&#65279;", "")
-                md = md.replace("&ZeroWidthSpace;", "")
+                md = html.unescape(md)
                 md = md.replace("\(", "$")
                 md = md.replace("\)", "$")
                 md = md.replace("\[", "$$")
                 md = md.replace("\]", "$$")
-                md = md.replace("&rsquo;", "'")
+                md = md.replace("\uFEFF", "")
                 with open(out_file_name, "w") as f:
                     f.write(md)
 
