@@ -174,7 +174,7 @@ class NotionMdParser:
             outputfile=out_file_name,
             extra_args=[
                 "-t",
-                f"markdown_strict-{'+'.join(pandoc_opts)}",
+                f"markdown_mmd-{'+'.join(pandoc_opts)}",
             ],
         )
         
