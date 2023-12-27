@@ -19,11 +19,11 @@ class NotionMdParser:
                 "em": (self.clear_children, "tag"),
             },
         }
-        self.clean_after = clean_after
         self.target = target
         self.html_files = []
         self.tags_to_delete = []
         self.misc_files_to_move = []
+        self.clean_after = clean_after
         self.input_folder_fp = "notion_html"
         self.out_folder_fp = "output"
 
@@ -38,9 +38,9 @@ class NotionMdParser:
         children = list(tag.children)
         if len(children) == 0:
             return
-        for child in children:
-            if child.name == "strong" or child.name == "em":
-                self.tags_to_delete.append(child)
+        self.tags_to_delete += list(
+            filter(lambda x: x.name in ["strong", "em"], children)
+        )
 
     def unzip(self, zip_fp, folder_fp):
         with zipfile.ZipFile(os.path.join(folder_fp, zip_fp), "r") as zip_ref:
@@ -114,7 +114,6 @@ class NotionMdParser:
         return soup
 
     def write_modified_soup(self, soup, html_fp):
-        self.create_folder(self.out_folder_fp)
         mod_html_fp = html_fp.replace(self.input_folder_fp, self.out_folder_fp)
         with open(mod_html_fp, "w") as f:
             f.write(str(soup))
@@ -130,6 +129,7 @@ class NotionMdParser:
     def parse(self, html_fp):
         soup = BeautifulSoup(open(html_fp), "html.parser", from_encoding="utf-8-sig")
         soup = self.fix_links(soup)
+        # remove redundant style tags
         for tag in soup.find_all(["strong", "em"]):
             if tag.parent.name not in ["strong", "em"]:
                 text = tag.text
@@ -150,14 +150,14 @@ class NotionMdParser:
                     action(tag)
                     if not self.is_navstring(tag):
                         tag.append(text)
-                        
-        for kmath in soup.find_all('span', {'class': 'katex-html'}):
+
+        # remove redundant katex tags
+        for kmath in soup.find_all("span", {"class": "katex-html"}):
             kmath.decompose()
-    
+
         return soup
 
     def dump_md(self, html_fp):
-        self.create_folder(self.out_folder_fp)
         out_file_name = html_fp.replace(".html", ".md")
         pandoc_opts = [
             "raw_html",
@@ -166,7 +166,6 @@ class NotionMdParser:
             "multiline_tables",
             "pipe_tables",
             "latex_macros",
-            
         ]
         pypandoc.convert_file(
             html_fp,
@@ -174,18 +173,14 @@ class NotionMdParser:
             outputfile=out_file_name,
             extra_args=[
                 "-t",
-                f"markdown_mmd-{'+'.join(pandoc_opts)}",
+                f"markdown_github-{'+'.join(pandoc_opts)}",
             ],
         )
-        
+
         if self.target == "md":
             with open(out_file_name, "r") as f:
                 md = f.read()
                 md = html.unescape(md)
-                md = md.replace("\(", "$")
-                md = md.replace("\)", "$")
-                md = md.replace("\[", "$$")
-                md = md.replace("\]", "$$")
                 md = md.replace("\uFEFF", "")
                 with open(out_file_name, "w") as f:
                     f.write(md)
