@@ -105,7 +105,6 @@ class NotionMdParser:
             self.dump_md(mod_html)
 
     def fix_links(self, soup):
-        # find all hrefs ending with '.html'
         if self.target == "md":
             for a in soup.find_all("a", href=True):
                 if a["href"].endswith(".html"):
@@ -120,6 +119,7 @@ class NotionMdParser:
         return mod_html_fp
 
     def cleanup_tags(self):
+        print(self.tags_to_delete)
         for tag in self.tags_to_delete:
             tag.decompose()
 
@@ -151,10 +151,17 @@ class NotionMdParser:
                     if not self.is_navstring(tag):
                         tag.append(text)
 
-        # remove redundant katex tags
-        for kmath in soup.find_all("span", {"class": "katex-html"}):
-            kmath.decompose()
-
+        self.tags_to_delete.extend(list(soup.find_all("div", {"class": "katex-html"})))    
+            
+        for todo in soup.find_all("ul", {"class": "to-do-list"}):
+            useless = todo.find("div", {"class": lambda x: x and ( x.startswith('indented') or x.startswith('checkbox') )})
+            self.tags_to_delete += [useless]
+            
+            checkbox = todo.find("span", {"class": lambda x: x and x.startswith('to-do-children')})
+            checkbox_status = f"chbox-{checkbox['class'][0].split('-')[3]}"
+            inner_text = f"{checkbox_status} {checkbox.text}"
+            checkbox.replace_with(inner_text)
+        
         return soup
 
     def dump_md(self, html_fp):
@@ -182,6 +189,8 @@ class NotionMdParser:
                 md = f.read()
                 md = html.unescape(md)
                 md = md.replace("\uFEFF", "")
+                md = md.replace("chbox-unchecked", "[ ]")
+                md = md.replace("chbox-checked", "[x]")
                 with open(out_file_name, "w") as f:
                     f.write(md)
 
